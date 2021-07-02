@@ -64,7 +64,9 @@ def calcPL(prcHist):
             ret = value / totDVolume
             frac0 = totDVolume0 / totDVolume
             frac1 = totDVolume1 / totDVolume
-        print ("Day %d value: %.2lf todayPL: $%.2lf $-traded: %.0lf return: %.5lf frac0: %.4lf frac1: %.4lf" % (t,value, todayPL, totDVolume, ret, frac0, frac1))
+        # old print
+        # print ("Day %d value: %.2lf todayPL: $%.2lf $-traded: %.0lf return: %.5lf frac0: %.4lf frac1: %.4lf" % (t,value, todayPL, totDVolume, ret, frac0, frac1))
+        print ("Day %d value: %9.2lf todayPL: $%8.2lf $-traded: %7.0lf return: %8.5lf frac0: %6.4lf frac1: %6.4lf" % (t,value, todayPL, totDVolume, ret, frac0, frac1))
     pll = np.array(todayPLL)
     (plmu,plstd) = (np.mean(pll), np.std(pll))
     annSharpe = 0.0
