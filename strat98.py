@@ -26,11 +26,18 @@ def getMyPosition (prcSoFar):
                 qty = ((10000 - (10000 % new_price)) / new_price)
                 print(f"\n ==> buy {i} :: {qty}@{new_price}\n")
                 rpos[i] = qty
+            if currentPos[i] < 0:
+                # buy all short sells
+                qty = currentPos[i]
+                rpos[i] = rpos[i] - qty # qty is negative
         if new_price > cnvg:
             if currentPos[i] > 0:
                 qty = currentPos[i]
                 print(f"\n ==> sell {i} :: {qty}@{new_price}\n")
-                rpos[i] = -qty
+                #rpos[i] = -qty
+                # short sell here
+                qty_sll = ((10000 - (10000 % new_price)) / new_price)
+                rpos[i] = -qty_sll - qty
 
     currentPos += rpos
     
