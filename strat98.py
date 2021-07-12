@@ -7,13 +7,16 @@ TODO:
 
 import numpy as np
 from numpy.polynomial.polynomial import polyfit
+import math
 
 nInst=100
 currentPos = np.zeros(nInst)
-stop_loss_values = []
+stop_loss_value = np.zeros(nInst)
+trailing_profit = np.zeros(nInst) # can be substituted by trailing sl
 
 def getMyPosition (prcSoFar):
     global currentPos
+    global stop_loss_values
     (nins,nt) = prcSoFar.shape #(100, prices
     rpos = np.zeros(100)
 
@@ -21,41 +24,66 @@ def getMyPosition (prcSoFar):
     convergence_values = get_convergence_values(prcSoFar)   
     #print(f"\n {convergence_values} \n")
     for i in range(0, nins):
-        
+        #if i != 98:
+        #    continue
         cnvg = convergence_values[i]
         new_price = prcSoFar[i][-1]
         if new_price < 0.995*cnvg:
             if currentPos[i] == 0: # no current pos in stock
                 qty = ((10000 - (10000 % new_price)) / new_price)
-                print(f"==> buy {i} :: {qty}@{new_price}")
+                qty = math.floor(qty)
+                print(f"==> Simple buy {i} :: {qty}@{new_price} :: transaction value: {qty*new_price}")
                 rpos[i] = qty
             if currentPos[i] < 0:
                 # buy all short sells
                 qty = currentPos[i]
-                print(f"Sell short {i} :: {qty}@{new_price}")
+                qty = math.floor(qty)
+                print(f"==> Settle short position {i} :: {qty}@{new_price} :: transaction value: {qty*new_price}")
                 rpos[i] = rpos[i] - qty # qty is negative
+        
         if new_price > cnvg:
             if currentPos[i] > 0:
                 qty = currentPos[i]
-                print(f"==> sell {i} :: {qty}@{new_price}")
+                qty = math.floor(qty)
+                print(f"==> Simple sell {i} :: {qty}@{new_price} :: transaction value: {qty*new_price}")
                 #rpos[i] = -qty
                 # short sell here
                 qty_sll = ((10000 - (10000 % new_price)) / new_price)
-                print(f"==> short sell {i} :: {qty}@{new_price}")
+                qty_sll = math.floor(qty_sll)
+                print(f"==> short sell {i} :: {qty}@{new_price} :: transaction value: {qty*new_price}")
                 rpos[i] = -qty_sll - qty
-
+        '''
+        # Trailing profit implementation cant really figure out why it performs worse than simple sell
+        if new_price > cnvg:
+            if trailing_profit[i] < new_price:
+                trailing_profit[i] = new_price
+            elif trailing_profit[i] >= new_price:
+                if currentPos[i] > 0:
+                    qty = currentPos[i]
+                    qty = math.floor(qty)
+                    print(f"==> Simple sell {i} :: {qty}@{new_price} :: transaction value: {qty*new_price}")
+                    #rpos[i] = -qty
+                    # short sell here
+                    qty_sll = ((10000 - (10000 % new_price)) / new_price)
+                    qty_sll = math.floor(qty_sll)
+                    print(f"==> short sell {i} :: {qty}@{new_price} :: transaction value: {qty*new_price}")
+                    rpos[i] = -qty_sll - qty
+                    trailing_profit[i] = 0
+        '''
     currentPos += rpos
     
     return currentPos
 
 """
+TODO: Find best number of sequences and sequence length
+
 Get convergence values for all stocks
 
 Returns: List of 100 convergence values
 """
 def get_convergence_values(prcSoFar):
     SEQUENCE_LENGTH = 30
-    SEQUENCES = 25
+    SEQUENCES = 35
     convergence_values = []
     (nins, nt) = prcSoFar.shape
     for stock in prcSoFar:
