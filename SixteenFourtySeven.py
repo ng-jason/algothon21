@@ -23,8 +23,6 @@ def getMyPosition (prcSoFar):
     convergence_values = get_convergence_values(prcSoFar)   
     #print(f"\n {convergence_values} \n")
     for i in range(0, nins):
-        #if i != 98:
-        #    continue
         cnvg = convergence_values[i]
         new_price = prcSoFar[i][-1]
         
@@ -62,10 +60,6 @@ def get_convergence_values(prcSoFar):
             
             m, b = polyfit(x, y, 1)
             pred = 69 * b + m
-            ''' Why does second degree polynomial perform worse ??????
-            a, b, c = polyfit(x, y, 2) # try second degree regression
-            pred = a + b * 69 + c * 69 * 69
-            '''
             tmp_convergence_values.append(pred)
         cnvg = 0
         for val in tmp_convergence_values:
