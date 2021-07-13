@@ -1,1 +1,4 @@
 ##  Team: SixteenFourtySeven
+
+#### Libraries:
+- numpy
